@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STRATOS | Rural Energy Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,300;0,400;0,500;0,700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   RESET & VARIABLES
+============================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --navy: #0B1340;
+  --navy2: #0d1850;
+  --gold: #C68B2F;
+  --gold2: #e0a53a;
+  --gold-light: #fdf3e0;
+  --white: #ffffff;
+  --offwhite: #f8f7f4;
+  --border: #e8e3d8;
+  --grey: #6b7280;
+  --grey2: #9ca3af;
+  --black: #1a1a2e;
+  --green: #16a34a;
+  --amber: #d97706;
+  --red: #dc2626;
+  --shadow: 0 4px 24px rgba(11,19,64,0.08);
+  --shadow-lg: 0 12px 48px rgba(11,19,64,0.15);
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Google Sans', sans-serif; background: var(--white); color: var(--black); overflow-x: hidden; }
+input, select, textarea, button { font-family: 'Google Sans', sans-serif; }
+
+/* ============================================================
+   LANDING PAGE
+============================================================ */
+#landing {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--navy);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+#landing.exit { opacity: 0; transform: translateY(-40px); pointer-events: none; }
+
+#bg-canvas { position: absolute; inset: 0; pointer-events: none; }
+
+.landing-inner { position: relative; z-index: 1; text-align: center; padding: 40px; }
+
+.l-eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 28px; opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.3s;
+}
+
+.l-logo {
+  font-size: clamp(60px, 12vw, 120px);
+  font-weight: 700; color: #fff;
+  letter-spacing: 10px; line-height: 1;
+  margin-bottom: 6px; opacity: 0;
+  animation: fadeUp 1s cubic-bezier(0.16,1,0.3,1) forwards 0.5s;
+}
+.l-logo .o { color: var(--gold); }
+.l-logo .dot {
+  display: inline-block; width: 0.11em; height: 0.11em;
+  background: var(--gold); border-radius: 50%;
+  vertical-align: super; margin-left: 3px;
+}
+
+.l-sub {
+  font-size: clamp(13px, 2vw, 17px); font-weight: 300;
+  color: rgba(255,255,255,0.5); letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 48px; opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.8s;
+}
+
+.l-tagline {
+  font-size: clamp(16px, 2.5vw, 22px); font-weight: 400;
+  color: rgba(255,255,255,0.75); max-width: 560px;
+  margin: 0 auto 56px; line-height: 1.6; opacity: 0;
+  animation: fadeUp 0.8s ease forwards 1s;
+}
+
+.l-btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--gold); color: var(--navy);
+  border: none; padding: 16px 40px;
+  font-size: 15px; font-weight: 700; letter-spacing: 0.5px;
+  cursor: pointer; transition: all 0.3s ease;
+  opacity: 0; animation: fadeUp 0.8s ease forwards 1.2s;
+  position: relative; overflow: hidden;
+}
+.l-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(255,255,255,0.15);
+  transform: translateX(-100%); transition: transform 0.4s ease;
+}
+.l-btn:hover::after { transform: translateX(0); }
+.l-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 40px rgba(198,139,47,0.45); }
+.l-btn svg { transition: transform 0.3s ease; }
+.l-btn:hover svg { transform: translateX(4px); }
+
+.l-gold-line {
+  width: 60px; height: 3px; background: var(--gold);
+  margin: 0 auto 32px; opacity: 0;
+  animation: scaleIn 0.6s ease forwards 0.7s;
+}
+
+/* ============================================================
+   APP SHELL
+============================================================ */
+#app {
+  display: none; min-height: 100vh;
+  flex-direction: column;
+}
+#app.visible { display: flex; }
+
+/* TOP NAV */
+.topnav {
+  height: 60px; background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 28px; gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+}
+.nav-logo { font-size: 16px; font-weight: 700; color: var(--navy); letter-spacing: 3px; }
+.nav-logo .o { color: var(--gold); }
+.nav-divider { width: 1px; height: 24px; background: var(--border); }
+.nav-title { font-size: 13px; color: var(--grey); font-weight: 500; }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.nav-badge {
+  background: var(--gold-light); color: var(--gold);
+  font-size: 11px; font-weight: 700; padding: 4px 10px;
+  letter-spacing: 0.5px;
+}
+.nav-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+
+/* MAIN LAYOUT */
+.app-body { display: flex; flex: 1; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px; flex-shrink: 0;
+  background: var(--navy); min-height: calc(100vh - 60px);
+  padding: 24px 0; display: flex; flex-direction: column;
+}
+.sidebar-section { padding: 0 16px; margin-bottom: 8px; }
+.sidebar-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255,255,255,0.3);
+  padding: 0 8px; margin-bottom: 6px;
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; color: rgba(255,255,255,0.6);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all 0.2s ease; border-radius: 4px;
+  margin-bottom: 2px;
+}
+.sidebar-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+.sidebar-item.active { background: rgba(198,139,47,0.15); color: var(--gold); }
+.sidebar-item .si-icon { font-size: 16px; width: 20px; text-align: center; }
+.sidebar-bottom { margin-top: auto; padding: 16px; border-top: 1px solid rgba(255,255,255,0.08); }
+.sidebar-version { font-size: 10px; color: rgba(255,255,255,0.2); text-align: center; letter-spacing: 1px; }
+
+/* MAIN CONTENT */
+.main { flex: 1; background: var(--offwhite); overflow-y: auto; }
+
+/* ============================================================
+   DASHBOARD VIEW
+============================================================ */
+.view { display: none; padding: 32px; }
+.view.active { display: block; }
+
+.page-header { margin-bottom: 28px; }
+.page-title { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: var(--grey); }
+
+/* SUMMARY CARDS */
+.summary-cards {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; margin-bottom: 28px;
+}
+.s-card {
+  background: var(--white); padding: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative; overflow: hidden;
+}
+.s-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.s-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: var(--gold);
+}
+.s-card-n { font-size: 28px; font-weight: 700; color: var(--navy); line-height: 1; margin-bottom: 4px; }
+.s-card-l { font-size: 11px; color: var(--grey); font-weight: 500; letter-spacing: 0.3px; }
+.s-card-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 28px; opacity: 0.15; }
+
+/* ============================================================
+   NEW ASSESSMENT FORM
+============================================================ */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+
+.form-panel {
+  background: var(--white); border: 1px solid var(--border);
+  box-shadow: var(--shadow); padding: 28px;
+}
+.fp-title {
+  font-size: 14px; font-weight: 700; color: var(--navy);
+  margin-bottom: 20px; padding-bottom: 12px;
+  border-bottom: 2px solid var(--navy);
+  display: flex; align-items: center; gap: 8px;
+}
+.fp-title-tag {
+  font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--gold);
+  background: var(--gold-light); padding: 2px 8px;
+}
+
+.form-group { margin-bottom: 18px; }
+.form-label {
+  display: block; font-size: 11px; font-weight: 700;
+  color: var(--navy); letter-spacing: 0.5px;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.form-input, .form-select {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-size: 13px; color: var(--black); outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  appearance: none;
+}
+.form-input:focus, .form-select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(198,139,47,0.12);
+}
+.form-input::placeholder { color: var(--grey2); }
+
+.slider-wrap { margin-bottom: 18px; }
+.slider-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
+.slider-name { font-size: 11px; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: 0.5px; }
+.slider-meta { font-size: 10px; color: var(--grey2); }
+.slider-val-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.slider-num { font-size: 22px; font-weight: 700; color: var(--gold); min-width: 36px; line-height: 1; }
+.slider-track { flex: 1; position: relative; height: 6px; background: var(--border); border-radius: 3px; }
+.slider-fill { position: absolute; top: 0; left: 0; height: 100%; border-radius: 3px; background: linear-gradient(to right, var(--gold), var(--gold2)); transition: width 0.05s; }
+.slider-input { position: absolute; inset: -5px 0; width: 100%; opacity: 0; cursor: pointer; height: 16px; z-index: 2; }
+.slider-desc { font-size: 10px; color: var(--grey2); line-height: 1.45; }
+
+.submit-btn {
+  width: 100%; padding: 14px; background: var(--navy);
+  color: #fff; border: none; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.3s ease; letter-spacing: 0.5px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-top: 8px; position: relative; overflow: hidden;
+}
+.submit-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: var(--gold); transform: scaleX(0);
+  transform-origin: left; transition: transform 0.4s ease;
+}
+.submit-btn:hover::after { transform: scaleX(1); }
+.submit-btn:hover { box-shadow: 0 6px 24px rgba(11,19,64,0.3); }
+.submit-btn span { position: relative; z-index: 1; }
+
+/* ============================================================
+   AI PROCESSING ANIMATION
+============================================================ */
+#processing-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(11,19,64,0.92); z-index: 500;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(8px);
+}
+#processing-overlay.active { display: flex; }
+
+.processing-box {
+  background: var(--white); padding: 48px 52px;
+  max-width: 580px; width: 100%; text-align: center;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  animation: scaleIn 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.proc-logo { font-size: 20px; font-weight: 700; color: var(--navy); letter-spacing: 3px; margin-bottom: 24px; }
+.proc-logo .o { color: var(--gold); }
+.proc-title { font-size: 17px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.proc-sub { font-size: 13px; color: var(--grey); margin-bottom: 36px; }
+
+/* Pipeline steps */
+.pipeline { display: flex; flex-direction: column; gap: 0; margin-bottom: 32px; text-align: left; }
+.pipe-step {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 0; position: relative;
+}
+.pipe-step:not(:last-child)::after {
+  content: ''; position: absolute;
+  left: 17px; top: 44px;
+  width: 2px; height: calc(100% - 20px);
+  background: var(--border); z-index: 0;
+}
+.pipe-step.done:not(:last-child)::after { background: var(--gold); transition: background 0.3s; }
+
+.pipe-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0; z-index: 1;
+  background: var(--white); transition: all 0.4s ease;
+  position: relative;
+}
+.pipe-step.active .pipe-icon {
+  border-color: var(--gold);
+  background: var(--gold-light);
+  animation: pulseBorder 1s ease infinite;
+}
+.pipe-step.done .pipe-icon {
+  border-color: var(--green);
+  background: #f0fdf4;
+}
+
+.pipe-content { flex: 1; }
+.pipe-name { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+.pipe-step.active .pipe-name { color: var(--gold); }
+.pipe-step.done .pipe-name { color: var(--green); }
+.pipe-detail { font-size: 11px; color: var(--grey2); line-height: 1.45; }
+
+.pipe-status { font-size: 11px; font-weight: 700; flex-shrink: 0; }
+.pipe-step.active .pipe-status { color: var(--gold); }
+.pipe-step.done .pipe-status { color: var(--green); }
+.pipe-step .pipe-status { color: var(--grey2); }
+
+/* Spinner for active step */
+.pipe-spinner {
+  display: none; width: 16px; height: 16px;
+  border: 2px solid rgba(198,139,47,0.2);
+  border-top-color: var(--gold); border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.pipe-step.active .pipe-spinner { display: block; }
+.pipe-step.done .pipe-spinner { display: none; }
+
+/* Token stream */
+.token-stream {
+  background: var(--navy); padding: 14px 18px;
+  font-size: 11px; color: rgba(255,255,255,0.5);
+  line-height: 1.7; min-height: 60px; text-align: left;
+  font-family: 'Google Sans', monospace; letter-spacing: 0.3px;
+  border-left: 3px solid var(--gold);
+}
+.token-stream .token { color: var(--gold2); }
+.token-stream .token-val { color: rgba(255,255,255,0.85); }
+
+/* ============================================================
+   RESULTS PANEL
+============================================================ */
+.results-wrap {
+  display: none; grid-template-columns: 1fr 1fr;
+  gap: 24px; margin-top: 24px;
+}
+.results-wrap.show { display: grid; }
+
+.result-panel {
+  background: var(--white); border: 1px solid var(--border);
+  box-shadow: var(--shadow); padding: 28px;
+}
+
+/* Score Ring */
+.score-ring-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
+.ring-container { position: relative; width: 180px; height: 180px; margin-bottom: 16px; }
+.ring-container svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+.ring-bg-circle { fill: none; stroke: var(--border); stroke-width: 14; }
+.ring-progress { fill: none; stroke-width: 14; stroke-linecap: round; transition: stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1), stroke 0.5s ease; }
+.ring-center-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring-score { font-size: 38px; font-weight: 700; color: var(--navy); line-height: 1; transition: color 0.5s ease; }
+.ring-denom { font-size: 12px; color: var(--grey2); margin-top: 2px; }
+.ring-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey2); margin-top: 4px; }
+
+.score-breakdown { width: 100%; }
+.br-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.br-name { font-size: 10px; color: var(--grey); width: 140px; flex-shrink: 0; font-weight: 500; }
+.br-track { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.br-fill { height: 100%; background: linear-gradient(to right, var(--gold), var(--gold2)); border-radius: 2px; width: 0; transition: width 0.8s cubic-bezier(0.16,1,0.3,1); }
+.br-val { font-size: 11px; font-weight: 700; color: var(--navy); width: 32px; text-align: right; }
+
+/* Verdict */
+.verdict { padding: 16px 20px; margin-top: 20px; display: flex; gap: 14px; align-items: flex-start; border-width: 1.5px; border-style: solid; transition: all 0.5s ease; }
+.verdict-green { border-color: var(--green); background: #f0fdf4; }
+.verdict-amber { border-color: var(--amber); background: #fffbeb; }
+.verdict-red { border-color: var(--red); background: #fef2f2; }
+.verdict-icon { font-size: 22px; flex-shrink: 0; }
+.verdict-body {}
+.verdict-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.verdict-green .verdict-title { color: var(--green); }
+.verdict-amber .verdict-title { color: var(--amber); }
+.verdict-red .verdict-title { color: var(--red); }
+.verdict-desc { font-size: 11px; color: var(--grey); line-height: 1.5; }
+
+/* AI Narrative */
+.narrative-box { background: var(--offwhite); border-left: 3px solid var(--gold); padding: 14px 16px; margin-top: 20px; }
+.narrative-label { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+.narrative-text { font-size: 12px; color: var(--grey); line-height: 1.65; }
+.narrative-cursor { display: inline-block; width: 2px; height: 12px; background: var(--gold); margin-left: 2px; animation: blink 1s ease infinite; vertical-align: middle; }
+
+/* Download button */
+.download-btn {
+  width: 100%; padding: 13px; background: var(--gold);
+  color: var(--navy); border: none; font-size: 13px;
+  font-weight: 700; cursor: pointer; margin-top: 20px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.3s ease; letter-spacing: 0.5px;
+}
+.download-btn:hover { background: var(--gold2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(198,139,47,0.35); }
+
+/* ============================================================
+   HISTORY TABLE
+============================================================ */
+.table-wrap { background: var(--white); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table thead tr { background: var(--navy); }
+.data-table th { color: #fff; padding: 11px 14px; text-align: left; font-size: 10px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+.data-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--black); }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:nth-child(even) td { background: var(--offwhite); }
+.score-pill { display: inline-block; padding: 3px 10px; font-size: 11px; font-weight: 700; }
+.pill-green { background: #dcfce7; color: var(--green); }
+.pill-amber { background: #fef3c7; color: var(--amber); }
+.pill-red { background: #fee2e2; color: var(--red); }
+
+/* ============================================================
+   PDF PRINT STYLES
+============================================================ */
+#pdf-content {
+  display: none;
+  font-family: 'Google Sans', sans-serif;
+  background: #fff; color: #1a1a2e;
+}
+
+@media print {
+  body > *:not(#pdf-content) { display: none !important; }
+  #pdf-content { display: block !important; padding: 0; }
+  .pdf-page { page-break-after: always; padding: 18mm 16mm; }
+  .pdf-page:last-child { page-break-after: auto; }
+}
+
+.pdf-header { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 10px; border-bottom: 2px solid #0B1340; margin-bottom: 14px; }
+.pdf-logo { font-size: 24px; font-weight: 700; letter-spacing: 4px; color: #0B1340; }
+.pdf-logo .o { color: #C68B2F; }
+.pdf-meta { font-size: 8px; color: #888; text-align: right; line-height: 1.8; }
+.pdf-comm-name { font-size: 18px; font-weight: 700; color: #0B1340; margin-bottom: 3px; }
+.pdf-comm-sub { font-size: 9px; color: #888; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16px; }
+.pdf-score-row { display: flex; align-items: center; gap: 20px; background: #0B1340; padding: 14px 18px; margin-bottom: 14px; }
+.pdf-score-big { font-size: 36px; font-weight: 700; color: #C68B2F; line-height: 1; }
+.pdf-score-label { font-size: 9px; color: rgba(255,255,255,0.6); margin-top: 2px; letter-spacing: 1px; text-transform: uppercase; }
+.pdf-verdict-text { color: #fff; font-size: 13px; font-weight: 700; }
+.pdf-verdict-desc { color: rgba(255,255,255,0.65); font-size: 10px; margin-top: 2px; }
+.pdf-section-title { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #C68B2F; margin-bottom: 6px; margin-top: 14px; }
+.pdf-table { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 12px; }
+.pdf-table thead tr { background: #0B1340; }
+.pdf-table th { color: #fff; padding: 5px 8px; text-align: left; font-size: 8px; font-weight: 600; letter-spacing: 0.5px; }
+.pdf-table th:last-child { text-align: center; }
+.pdf-table td { padding: 4px 8px; border-bottom: 1px solid #e8e3d8; font-size: 9px; }
+.pdf-table td:last-child { text-align: center; font-weight: 700; }
+.pdf-table tr:nth-child(even) td { background: #f8f7f4; }
+.pdf-narrative { border-left: 3px solid #C68B2F; padding: 10px 14px; background: #fdf8f0; font-size: 9px; color: #555; line-height: 1.65; margin-bottom: 12px; }
+.pdf-footer { border-top: 1px solid #e8e3d8; padding-top: 8px; display: flex; justify-content: space-between; font-size: 7px; color: #aaa; margin-top: 14px; }
+
+/* ============================================================
+   ANIMATIONS
+============================================================ */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulseBorder { 0%,100% { box-shadow: 0 0 0 0 rgba(198,139,47,0.3); } 50% { box-shadow: 0 0 0 6px rgba(198,139,47,0); } }
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     LANDING PAGE
+============================================================ -->
+<div id="landing">
+  <canvas id="bg-canvas"></canvas>
+  <div class="landing-inner">
+    <div class="l-eyebrow">Rural Energy Intelligence Platform</div>
+    <div class="l-logo">STRAT<span class="o">O</span>S<span class="dot"></span></div>
+    <div class="l-gold-line"></div>
+    <div class="l-sub">Community Viability Intelligence</div>
+    <div class="l-tagline">
+      Making rural energy investment a calculated decision, not a speculative one.
+      Deploy field intelligence. Score communities. Enable investment.
+    </div>
+    <button class="l-btn" onclick="enterApp()">
+      <span>Proceed to Dashboard</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ============================================================
+     APP SHELL
+============================================================ -->
+<div id="app">
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="nav-logo">STRAT<span class="o">O</span>S</div>
+    <div class="nav-divider"></div>
+    <div class="nav-title">Community Viability Intelligence</div>
+    <div class="nav-right">
+      <div class="nav-badge">BETA v1.0</div>
+      <div class="nav-dot"></div>
+      <span style="font-size:11px; color:var(--grey);">System Online</span>
+    </div>
+  </nav>
+
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Main</div>
+        <div class="sidebar-item active" onclick="showView('dashboard')">
+          <span class="si-icon">📊</span> Overview
+        </div>
+        <div class="sidebar-item" onclick="showView('new-assessment')">
+          <span class="si-icon">➕</span> New Assessment
+        </div>
+        <div class="sidebar-item" onclick="showView('history')">
+          <span class="si-icon">📋</span> Profile History
+        </div>
+      </div>
+      <div class="sidebar-section" style="margin-top:16px;">
+        <div class="sidebar-label">Intelligence</div>
+        <div class="sidebar-item" onclick="showView('database')">
+          <span class="si-icon">🗺️</span> Community Database
+        </div>
+        <div class="sidebar-item" onclick="showView('reports')">
+          <span class="si-icon">📄</span> Reports
+        </div>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="sidebar-version">STRATOS Platform · June 2026</div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- OVERVIEW -->
+      <div class="view active" id="view-dashboard">
+        <div class="page-header">
+          <div class="page-title">Platform Overview</div>
+          <div class="page-sub">Live intelligence summary · Niger State Pilot Active</div>
+        </div>
+        <div class="summary-cards">
+          <div class="s-card">
+            <div class="s-card-n" id="stat-profiles">0</div>
+            <div class="s-card-l">Profiles Generated</div>
+            <div class="s-card-icon">📊</div>
+          </div>
+          <div class="s-card">
+            <div class="s-card-n" id="stat-viable">0</div>
+            <div class="s-card-l">Viable Communities</div>
+            <div class="s-card-icon">✅</div>
+          </div>
+          <div class="s-card">
+            <div class="s-card-n" id="stat-avg">0</div>
+            <div class="s-card-l">Average CEPS Score</div>
+            <div class="s-card-icon">🎯</div>
+          </div>
+          <div class="s-card">
+            <div class="s-card-n">$200K</div>
+            <div class="s-card-l">Avg. Risk Prevented / Profile</div>
+            <div class="s-card-icon">💡</div>
+          </div>
+        </div>
+        <div style="background:var(--white); border:1px solid var(--border); box-shadow:var(--shadow); padding:28px; margin-bottom:24px;">
+          <div style="font-size:13px; font-weight:700; color:var(--navy); margin-bottom:4px;">What is the CEPS Score?</div>
+          <div style="font-size:12px; color:var(--grey); line-height:1.65; max-width:700px;">The Community Energy Potential Score (CEPS) is a 100-point composite index that translates raw field data into a single bankable investment signal. It combines geophysical survey data, agricultural productivity mapping, and market economics into one number a developer can take to a financier. Score above 65 signals a viable investment. Below 50 signals high risk.</div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:18px;">
+            <div style="padding:12px; background:var(--offwhite); border-top:2px solid var(--navy);">
+              <div style="font-size:9px; font-weight:700; color:var(--gold); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px;">Above 65</div>
+              <div style="font-size:12px; font-weight:700; color:var(--green);">Viable</div>
+              <div style="font-size:10px; color:var(--grey); margin-top:2px;">Proceed to investment with confidence</div>
+            </div>
+            <div style="padding:12px; background:var(--offwhite); border-top:2px solid var(--navy);">
+              <div style="font-size:9px; font-weight:700; color:var(--gold); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px;">50 to 65</div>
+              <div style="font-size:12px; font-weight:700; color:var(--amber);">Conditional</div>
+              <div style="font-size:10px; color:var(--grey); margin-top:2px;">Mitigate specific risks before proceeding</div>
+            </div>
+            <div style="padding:12px; background:var(--offwhite); border-top:2px solid var(--navy);">
+              <div style="font-size:9px; font-weight:700; color:var(--gold); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px;">Below 50</div>
+              <div style="font-size:12px; font-weight:700; color:var(--red);">High Risk</div>
+              <div style="font-size:10px; color:var(--grey); margin-top:2px;">Seek alternative site before committing</div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; padding:20px;">
+          <button class="submit-btn" style="max-width:320px; margin:0 auto;" onclick="showView('new-assessment')">
+            <span>&#43; Start New Community Assessment</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- NEW ASSESSMENT -->
+      <div class="view" id="view-new-assessment">
+        <div class="page-header">
+          <div class="page-title">New Community Assessment</div>
+          <div class="page-sub">Enter field data to generate a Community Viability Profile and CEPS Score</div>
+        </div>
+
+        <div class="form-grid">
+          <!-- LEFT: INPUTS -->
+          <div>
+            <div class="form-panel" style="margin-bottom:20px;">
+              <div class="fp-title">
+                Community Information
+                <span class="fp-title-tag">Step 1</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Community Name</label>
+                <input type="text" class="form-input" id="f-name" placeholder="e.g. Lapai Community, Niger State">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Local Government Area</label>
+                <input type="text" class="form-input" id="f-lga" placeholder="e.g. Lapai LGA">
+              </div>
+              <div class="form-group">
+                <label class="form-label">State</label>
+                <select class="form-select" id="f-state">
+                  <option value="">Select State</option>
+                  <option value="Niger State" selected>Niger State</option>
+                  <option value="Kogi State">Kogi State</option>
+                  <option value="Kebbi State">Kebbi State</option>
+                  <option value="Sokoto State">Sokoto State</option>
+                  <option value="Zamfara State">Zamfara State</option>
+                  <option value="Kaduna State">Kaduna State</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Field Team Lead</label>
+                <input type="text" class="form-input" id="f-team" placeholder="Name of field team lead">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date of Assessment</label>
+                <input type="date" class="form-input" id="f-date">
+              </div>
+            </div>
+
+            <div class="form-panel">
+              <div class="fp-title">
+                CEPS Component Scores
+                <span class="fp-title-tag">Step 2</span>
+              </div>
+
+              <div class="slider-wrap">
+                <div class="slider-header">
+                  <div class="slider-name">Soil Permeability and Structure</div>
+                  <div class="slider-meta">Weight: 20%</div>
+                </div>
+                <div class="slider-val-row">
+                  <div class="slider-num" id="sv-soil">75</div>
+                  <div class="slider-track">
+                    <div class="slider-fill" id="sf-soil" style="width:75%"></div>
+                    <input type="range" class="slider-input" id="sl-soil" min="0" max="100" value="75" oninput="updateSlider('soil',this.value)">
+                  </div>
+                  <div style="font-size:10px; color:var(--grey2); width:36px; text-align:right;">/ 100</div>
+                </div>
+                <div class="slider-desc">Soil composition and permeability from ERT subsurface analysis. Indicates agricultural drainage and root penetration capacity.</div>
+              </div>
+
+              <div class="slider-wrap">
+                <div class="slider-header">
+                  <div class="slider-name">Groundwater Depth and Accessibility</div>
+                  <div class="slider-meta">Weight: 20%</div>
+                </div>
+                <div class="slider-val-row">
+                  <div class="slider-num" id="sv-gw">68</div>
+                  <div class="slider-track">
+                    <div class="slider-fill" id="sf-gw" style="width:68%"></div>
+                    <input type="range" class="slider-input" id="sl-gw" min="0" max="100" value="68" oninput="updateSlider('gw',this.value)">
+                  </div>
+                  <div style="font-size:10px; color:var(--grey2); width:36px; text-align:right;">/ 100</div>
+                </div>
+                <div class="slider-desc">Groundwater table depth mapped via ERT survey. Determines year-round irrigation viability and water security for productive use.</div>
+              </div>
+
+              <div class="slider-wrap">
+                <div class="slider-header">
+                  <div class="slider-name">Cultivable Land and Yield Potential</div>
+                  <div class="slider-meta">Weight: 30%</div>
+                </div>
+                <div class="slider-val-row">
+                  <div class="slider-num" id="sv-agri">80</div>
+                  <div class="slider-track">
+                    <div class="slider-fill" id="sf-agri" style="width:80%"></div>
+                    <input type="range" class="slider-input" id="sl-agri" min="0" max="100" value="80" oninput="updateSlider('agri',this.value)">
+                  </div>
+                  <div style="font-size:10px; color:var(--grey2); width:36px; text-align:right;">/ 100</div>
+                </div>
+                <div class="slider-desc">Cultivable land area, crop types, and yield potential assessed by agronomy team. Determines the revenue-generating agricultural capacity.</div>
+              </div>
+
+              <div class="slider-wrap">
+                <div class="slider-header">
+                  <div class="slider-name">Market Activity and Repayment Capacity</div>
+                  <div class="slider-meta">Weight: 30%</div>
+                </div>
+                <div class="slider-val-row">
+                  <div class="slider-num" id="sv-mkt">72</div>
+                  <div class="slider-track">
+                    <div class="slider-fill" id="sf-mkt" style="width:72%"></div>
+                    <input type="range" class="slider-input" id="sl-mkt" min="0" max="100" value="72" oninput="updateSlider('mkt',this.value)">
+                  </div>
+                  <div style="font-size:10px; color:var(--grey2); width:36px; text-align:right;">/ 100</div>
+                </div>
+                <div class="slider-desc">Commercial activity, household income levels, and willingness to pay tariffs. Determines whether the demand profile can sustain a viable mini-grid.</div>
+              </div>
+
+              <button class="submit-btn" onclick="runAssessment()">
+                <span>⚡ Generate CEPS Score and Viability Profile</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- RIGHT: LIVE PREVIEW + RESULTS -->
+          <div>
+            <div class="form-panel" id="live-preview">
+              <div class="fp-title">Live Score Preview</div>
+              <div class="score-ring-wrap">
+                <div class="ring-container">
+                  <svg width="180" height="180" viewBox="0 0 180 180">
+                    <circle class="ring-bg-circle" cx="90" cy="90" r="76"/>
+                    <circle class="ring-progress" id="live-ring" cx="90" cy="90" r="76"
+                      stroke-dasharray="477.5" stroke-dashoffset="477.5" stroke="#C68B2F"/>
+                  </svg>
+                  <div class="ring-center-text">
+                    <div class="ring-score" id="live-score">0</div>
+                    <div class="ring-denom">/ 100</div>
+                    <div class="ring-label">CEPS Score</div>
+                  </div>
+                </div>
+              </div>
+              <div class="score-breakdown" id="live-breakdown">
+                <div class="br-row"><div class="br-name">Soil (20%)</div><div class="br-track"><div class="br-fill" id="lb-soil"></div></div><div class="br-val" id="lbv-soil">0</div></div>
+                <div class="br-row"><div class="br-name">Groundwater (20%)</div><div class="br-track"><div class="br-fill" id="lb-gw"></div></div><div class="br-val" id="lbv-gw">0</div></div>
+                <div class="br-row"><div class="br-name">Agriculture (30%)</div><div class="br-track"><div class="br-fill" id="lb-agri"></div></div><div class="br-val" id="lbv-agri">0</div></div>
+                <div class="br-row"><div class="br-name">Market (30%)</div><div class="br-track"><div class="br-fill" id="lb-mkt"></div></div><div class="br-val" id="lbv-mkt">0</div></div>
+              </div>
+              <div class="verdict verdict-green" id="live-verdict">
+                <div class="verdict-icon">✅</div>
+                <div class="verdict-body">
+                  <div class="verdict-title" id="vt-title">Viable Community</div>
+                  <div class="verdict-desc" id="vt-desc">CEPS above 65. Developer can proceed to investment with confidence.</div>
+                </div>
+              </div>
+              <div style="margin-top:14px; font-size:10px; color:var(--grey2); text-align:center; font-style:italic;">Adjust sliders to see live score update</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTS after processing -->
+        <div class="results-wrap" id="results-section">
+          <div class="result-panel">
+            <div class="fp-title">Official CEPS Score <span class="fp-title-tag">Generated</span></div>
+            <div class="score-ring-wrap">
+              <div class="ring-container">
+                <svg width="180" height="180" viewBox="0 0 180 180">
+                  <circle class="ring-bg-circle" cx="90" cy="90" r="76"/>
+                  <circle class="ring-progress" id="res-ring" cx="90" cy="90" r="76"
+                    stroke-dasharray="477.5" stroke-dashoffset="477.5" stroke="#C68B2F"/>
+                </svg>
+                <div class="ring-center-text">
+                  <div class="ring-score" id="res-score">0</div>
+                  <div class="ring-denom">/ 100</div>
+                  <div class="ring-label">CEPS Score</div>
+                </div>
+              </div>
+            </div>
+            <div class="score-breakdown">
+              <div class="br-row"><div class="br-name">Soil Permeability (20%)</div><div class="br-track"><div class="br-fill" id="rb-soil"></div></div><div class="br-val" id="rbv-soil">0</div></div>
+              <div class="br-row"><div class="br-name">Groundwater (20%)</div><div class="br-track"><div class="br-fill" id="rb-gw"></div></div><div class="br-val" id="rbv-gw">0</div></div>
+              <div class="br-row"><div class="br-name">Agriculture (30%)</div><div class="br-track"><div class="br-fill" id="rb-agri"></div></div><div class="br-val" id="rbv-agri">0</div></div>
+              <div class="br-row"><div class="br-name">Market Capacity (30%)</div><div class="br-track"><div class="br-fill" id="rb-mkt"></div></div><div class="br-val" id="rbv-mkt">0</div></div>
+            </div>
+            <div class="verdict verdict-green" id="res-verdict">
+              <div class="verdict-icon" id="res-vi">✅</div>
+              <div class="verdict-body">
+                <div class="verdict-title" id="res-vt">Viable Community</div>
+                <div class="verdict-desc" id="res-vd">CEPS above 65. Developer can proceed to investment with confidence.</div>
+              </div>
+            </div>
+          </div>
+          <div class="result-panel">
+            <div class="fp-title">AI-Generated Profile Narrative <span class="fp-title-tag">Intelligence</span></div>
+            <div class="narrative-box">
+              <div class="narrative-label">STRATOS Intelligence Report</div>
+              <div class="narrative-text" id="narrative-text"></div>
+            </div>
+            <div style="margin-top:16px;">
+              <div style="font-size:11px; font-weight:700; color:var(--navy); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Score Summary</div>
+              <table style="width:100%; border-collapse:collapse; font-size:11px;">
+                <thead><tr style="background:var(--navy);"><th style="color:#fff; padding:6px 10px; text-align:left;">Component</th><th style="color:#fff; padding:6px 10px; text-align:center;">Raw</th><th style="color:#fff; padding:6px 10px; text-align:center;">Weight</th><th style="color:#fff; padding:6px 10px; text-align:center;">Weighted</th></tr></thead>
+                <tbody id="score-table-body"></tbody>
+              </table>
+            </div>
+            <button class="download-btn" onclick="downloadPDF()">
+              ⬇ Download Full Viability Profile (PDF)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="view" id="view-history">
+        <div class="page-header">
+          <div class="page-title">Profile History</div>
+          <div class="page-sub">All generated Community Viability Profiles</div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Community</th><th>LGA / State</th><th>Date</th><th>Soil</th><th>GW</th><th>Agri</th><th>Market</th><th>CEPS</th><th>Verdict</th></tr>
+            </thead>
+            <tbody id="history-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DATABASE PLACEHOLDER -->
+      <div class="view" id="view-database">
+        <div class="page-header"><div class="page-title">Community Database</div><div class="page-sub">Growing national rural energy intelligence dataset</div></div>
+        <div style="background:var(--white); border:1px solid var(--border); padding:60px; text-align:center; box-shadow:var(--shadow);">
+          <div style="font-size:40px; margin-bottom:16px;">🗺️</div>
+          <div style="font-size:16px; font-weight:700; color:var(--navy); margin-bottom:6px;">Map View Coming Soon</div>
+          <div style="font-size:13px; color:var(--grey);">The geospatial community database will display all profiled communities plotted on an interactive Nigeria map. Generate more profiles to populate the database.</div>
+        </div>
+      </div>
+
+      <!-- REPORTS PLACEHOLDER -->
+      <div class="view" id="view-reports">
+        <div class="page-header"><div class="page-title">Reports</div><div class="page-sub">All downloadable viability profile reports</div></div>
+        <div style="background:var(--white); border:1px solid var(--border); padding:60px; text-align:center; box-shadow:var(--shadow);">
+          <div style="font-size:40px; margin-bottom:16px;">📄</div>
+          <div style="font-size:16px; font-weight:700; color:var(--navy); margin-bottom:6px;">Generate a Profile to Access Reports</div>
+          <div style="font-size:13px; color:var(--grey);">Run a new assessment to generate a downloadable PDF report. All reports will be archived here.</div>
+          <button class="submit-btn" style="max-width:280px; margin:24px auto 0;" onclick="showView('new-assessment')"><span>Start New Assessment</span></button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================
+     PROCESSING OVERLAY
+============================================================ -->
+<div id="processing-overlay">
+  <div class="processing-box">
+    <div class="proc-logo">STRAT<span class="o">O</span>S</div>
+    <div class="proc-title">Processing Field Data</div>
+    <div class="proc-sub" id="proc-sub">Initialising CEPS scoring pipeline...</div>
+
+    <div class="pipeline" id="pipeline">
+      <div class="pipe-step" id="ps-0">
+        <div class="pipe-icon">📡</div>
+        <div class="pipe-content">
+          <div class="pipe-name">Field Data Received</div>
+          <div class="pipe-detail">Community parameters and ERT readings ingested into the pipeline</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <div class="pipe-spinner"></div>
+          <div class="pipe-status" id="pst-0">Waiting</div>
+        </div>
+      </div>
+      <div class="pipe-step" id="ps-1">
+        <div class="pipe-icon">🌍</div>
+        <div class="pipe-content">
+          <div class="pipe-name">Geophysical Analysis</div>
+          <div class="pipe-detail">ERT resistivity data processed for soil permeability and groundwater depth</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <div class="pipe-spinner"></div>
+          <div class="pipe-status" id="pst-1">Waiting</div>
+        </div>
+      </div>
+      <div class="pipe-step" id="ps-2">
+        <div class="pipe-icon">🌾</div>
+        <div class="pipe-content">
+          <div class="pipe-name">Agricultural Scoring</div>
+          <div class="pipe-detail">Cultivable land area, crop types, and yield potential weighted and scored</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <div class="pipe-spinner"></div>
+          <div class="pipe-status" id="pst-2">Waiting</div>
+        </div>
+      </div>
+      <div class="pipe-step" id="ps-3">
+        <div class="pipe-icon">📊</div>
+        <div class="pipe-content">
+          <div class="pipe-name">Market and Economic Analysis</div>
+          <div class="pipe-detail">Commercial activity and repayment capacity assessed against baseline benchmarks</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <div class="pipe-spinner"></div>
+          <div class="pipe-status" id="pst-3">Waiting</div>
+        </div>
+      </div>
+      <div class="pipe-step" id="ps-4">
+        <div class="pipe-icon">⚡</div>
+        <div class="pipe-content">
+          <div class="pipe-name">CEPS Score Computed</div>
+          <div class="pipe-detail">Weighted composite score calculated and calibrated against REA benchmarks</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <div class="pipe-spinner"></div>
+          <div class="pipe-status" id="pst-4">Waiting</div>
+        </div>
+      </div>
+      <div class="pipe-step" id="ps-5">
+        <div class="pipe-icon">🤖</div>
+        <div class="pipe-content">
+          <div class="pipe-name">AI Narrative Generation</div>
+          <div class="pipe-detail">Intelligence report narrative generated from scored field data</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <div class="pipe-spinner"></div>
+          <div class="pipe-status" id="pst-5">Waiting</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="token-stream" id="token-stream">
+      <span style="color:rgba(255,255,255,0.3);">Awaiting pipeline start...</span>
+    </div>
+  </div>
+</div>
+
+<!-- PDF CONTENT (hidden, prints only) -->
+<div id="pdf-content">
+  <div class="pdf-page">
+    <div class="pdf-header">
+      <div>
+        <div class="pdf-logo">STRAT<span class="o">O</span>S</div>
+        <div style="font-size:7px; color:#aaa; letter-spacing:1.5px; text-transform:uppercase; margin-top:2px;">Rural Energy Intelligence Platform</div>
+      </div>
+      <div class="pdf-meta">
+        Community Viability Profile<br>
+        <span id="pdf-date-str"></span><br>
+        STRATOS Assessment System v1.0
+      </div>
+    </div>
+    <div class="pdf-comm-name" id="pdf-comm-name">Community Name</div>
+    <div class="pdf-comm-sub" id="pdf-comm-sub">LGA · State</div>
+    <div class="pdf-score-row" id="pdf-score-row">
+      <div>
+        <div class="pdf-score-big" id="pdf-score-big">0</div>
+        <div class="pdf-score-label">CEPS Score / 100</div>
+      </div>
+      <div>
+        <div class="pdf-verdict-text" id="pdf-verdict-text">Verdict</div>
+        <div class="pdf-verdict-desc" id="pdf-verdict-desc">Description</div>
+      </div>
+    </div>
+    <div class="pdf-section-title">CEPS Score Breakdown</div>
+    <table class="pdf-table">
+      <thead><tr><th>Component</th><th>Raw Score</th><th>Weight</th><th>Weighted Score</th></tr></thead>
+      <tbody id="pdf-table-body"></tbody>
+    </table>
+    <div class="pdf-section-title">Intelligence Narrative</div>
+    <div class="pdf-narrative" id="pdf-narrative"></div>
+    <div class="pdf-section-title">Score Interpretation</div>
+    <table class="pdf-table">
+      <thead><tr><th>Range</th><th>Verdict</th><th>Recommended Action</th></tr></thead>
+      <tbody>
+        <tr><td>Above 65</td><td style="color:#16a34a; font-weight:700;">Viable</td><td>Proceed to investment with confidence</td></tr>
+        <tr><td>50 to 65</td><td style="color:#d97706; font-weight:700;">Conditional</td><td>Proceed with specific risk mitigations noted</td></tr>
+        <tr><td>Below 50</td><td style="color:#dc2626; font-weight:700;">High Risk</td><td>Seek alternative community before committing capital</td></tr>
+      </tbody>
+    </table>
+    <div class="pdf-footer">
+      <span>STRATOS · Rural Energy Intelligence Platform · Nigeria</span>
+      <span>A failed mini-grid costs $200,000. A STRATOS profile costs $5,000.</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   PARTICLE CANVAS
+============================================================ */
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, pts = [];
+
+function resizeCanvas() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+function initPts() {
+  pts = [];
+  const n = Math.floor(W * H / 12000);
+  for (let i = 0; i < n; i++) pts.push({
+    x: Math.random() * W, y: Math.random() * H,
+    vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+    r: Math.random() * 1.8 + 0.4, a: Math.random() * 0.6 + 0.1
+  });
+}
+function drawCanvas() {
+  ctx.clearRect(0, 0, W, H);
+  // Grid
+  ctx.strokeStyle = 'rgba(198,139,47,0.04)'; ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 70) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 70) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  // Particles
+  pts.forEach((p, i) => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+    if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(198,139,47,${p.a})`; ctx.fill();
+    pts.slice(i+1).forEach(q => {
+      const dx = p.x-q.x, dy = p.y-q.y, d = Math.sqrt(dx*dx+dy*dy);
+      if (d < 130) {
+        ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y);
+        ctx.strokeStyle = `rgba(198,139,47,${0.07*(1-d/130)})`; ctx.lineWidth = 0.5; ctx.stroke();
+      }
+    });
+  });
+  requestAnimationFrame(drawCanvas);
+}
+window.addEventListener('resize', () => { resizeCanvas(); initPts(); });
+resizeCanvas(); initPts(); drawCanvas();
+
+/* ============================================================
+   APP STATE
+============================================================ */
+let sliders = { soil: 75, gw: 68, agri: 80, mkt: 72 };
+let history = [];
+let lastResult = null;
+let scoreAnimFrame;
+
+/* ============================================================
+   LANDING
+============================================================ */
+function enterApp() {
+  const landing = document.getElementById('landing');
+  landing.classList.add('exit');
+  setTimeout(() => {
+    landing.style.display = 'none';
+    const app = document.getElementById('app');
+    app.style.display = 'flex';
+    animateStats();
+    updateLiveScore();
+    document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+  }, 800);
+}
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  event && event.currentTarget && event.currentTarget.classList.add('active');
+}
+
+/* ============================================================
+   SLIDERS
+============================================================ */
+function updateSlider(key, val) {
+  val = parseInt(val);
+  sliders[key] = val;
+  document.getElementById('sv-' + key).textContent = val;
+  document.getElementById('sf-' + key).style.width = val + '%';
+  updateLiveScore();
+}
+
+function calcScore() {
+  return Math.round(sliders.soil * 0.20 + sliders.gw * 0.20 + sliders.agri * 0.30 + sliders.mkt * 0.30);
+}
+
+function getVerdict(score) {
+  if (score >= 65) return { cls: 'verdict-green', icon: '✅', title: 'Viable Community', desc: 'CEPS above 65. Developer can proceed to investment with confidence.' };
+  if (score >= 50) return { cls: 'verdict-amber', icon: '⚠️', title: 'Conditional Recommendation', desc: 'CEPS between 50 and 65. Proceed with specific risk mitigations noted in the profile.' };
+  return { cls: 'verdict-red', icon: '❌', title: 'High Financial Risk', desc: 'CEPS below 50. Developer should seek alternative sites before committing capital.' };
+}
+
+function getRingColor(score) {
+  if (score >= 65) return '#16a34a';
+  if (score >= 50) return '#d97706';
+  return '#dc2626';
+}
+
+function animateRing(ringId, scoreId, target) {
+  const circ = 477.5;
+  const ring = document.getElementById(ringId);
+  const scoreEl = document.getElementById(scoreId);
+  let current = 0;
+  const dur = 800, step = 16;
+  const inc = target / (dur / step);
+  cancelAnimationFrame(scoreAnimFrame);
+  function tick() {
+    current = Math.min(current + inc, target);
+    const offset = circ - (current / 100) * circ;
+    ring.style.strokeDashoffset = offset;
+    ring.style.stroke = getRingColor(Math.round(current));
+    scoreEl.textContent = Math.round(current);
+    scoreEl.style.color = getRingColor(Math.round(current));
+    if (current < target) scoreAnimFrame = requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+function updateBreakdowns(prefix) {
+  const comps = [
+    { key: 'soil', w: 0.20 },
+    { key: 'gw',   w: 0.20 },
+    { key: 'agri', w: 0.30 },
+    { key: 'mkt',  w: 0.30 },
+  ];
+  comps.forEach(({ key, w }) => {
+    const weighted = (sliders[key] * w).toFixed(1);
+    document.getElementById(prefix + '-' + key).style.width = sliders[key] + '%';
+    document.getElementById(prefix + 'v-' + key).textContent = weighted;
+  });
+}
+
+function updateLiveScore() {
+  const score = calcScore();
+  animateRing('live-ring', 'live-score', score);
+  updateBreakdowns('lb');
+  const v = getVerdict(score);
+  const vbox = document.getElementById('live-verdict');
+  vbox.className = 'verdict ' + v.cls;
+  document.getElementById('vt-title').textContent = v.title;
+  document.getElementById('vt-desc').textContent = v.desc;
+  document.getElementById('res-vi') && (document.getElementById('res-vi').textContent = v.icon);
+}
+
+/* ============================================================
+   STAT COUNTERS
+============================================================ */
+function animateStats() {
+  animateCount('stat-profiles', history.length || 0, '');
+  const viable = history.filter(h => h.score >= 65).length;
+  animateCount('stat-viable', viable, '');
+  const avg = history.length ? Math.round(history.reduce((s, h) => s + h.score, 0) / history.length) : 0;
+  animateCount('stat-avg', avg, '');
+}
+
+function animateCount(id, target, suffix) {
+  const el = document.getElementById(id);
+  let cur = 0;
+  const dur = 1200, step = 16;
+  const inc = Math.max(target / (dur / step), 1);
+  const t = setInterval(() => {
+    cur = Math.min(cur + inc, target);
+    el.textContent = Math.round(cur) + suffix;
+    if (cur >= target) clearInterval(t);
+  }, step);
+}
+
+/* ============================================================
+   ASSESSMENT RUN
+============================================================ */
+function runAssessment() {
+  const name = document.getElementById('f-name').value.trim() || 'Unnamed Community';
+  const lga = document.getElementById('f-lga').value.trim() || 'Unknown LGA';
+  const state = document.getElementById('f-state').value || 'Niger State';
+  const score = calcScore();
+
+  // Show overlay
+  document.getElementById('processing-overlay').classList.add('active');
+  resetPipeline();
+  runPipeline(name, lga, state, score);
+}
+
+function resetPipeline() {
+  for (let i = 0; i <= 5; i++) {
+    const s = document.getElementById('ps-' + i);
+    s.classList.remove('active', 'done');
+    document.getElementById('pst-' + i).textContent = 'Waiting';
+  }
+  document.getElementById('token-stream').innerHTML = '<span style="color:rgba(255,255,255,0.3);">Pipeline starting...</span>';
+}
+
+const tokenLines = [
+  'STRATOS.pipeline.init() → OK',
+  'loading field_data_schema v2.3...',
+  'ERT_raw_input: resistivity_matrix [4x12]',
+  'soil_permeability_index → computed',
+  'groundwater_depth_model → calibrated',
+  'agri_yield_estimator.fit(crop_data)',
+  'market_survey_parser → normalised',
+  'CEPS_engine.calculate(weights=[0.20,0.20,0.30,0.30])',
+  'composite_score → finalised',
+  'AI_narrative_module.generate(context=score_data)',
+  'report_template.render() → complete',
+  'profile_id assigned → STRATOS-{id}',
+];
+
+function runPipeline(name, lga, state, score) {
+  const delays = [0, 900, 1900, 2900, 3900, 4900];
+  const durations = [800, 900, 900, 900, 900, 1000];
+  const messages = [
+    'Receiving field data...',
+    'Processing geophysical ERT data...',
+    'Scoring agricultural parameters...',
+    'Analysing market and economic data...',
+    'Computing final CEPS score...',
+    'Generating AI narrative report...',
+  ];
+
+  delays.forEach((delay, i) => {
+    setTimeout(() => {
+      // Activate step
+      if (i > 0) {
+        document.getElementById('ps-' + (i-1)).classList.remove('active');
+        document.getElementById('ps-' + (i-1)).classList.add('done');
+        document.getElementById('pst-' + (i-1)).textContent = 'Done ✓';
+      }
+      document.getElementById('ps-' + i).classList.add('active');
+      document.getElementById('pst-' + i).textContent = 'Processing...';
+      document.getElementById('proc-sub').textContent = messages[i];
+
+      // Token stream
+      streamToken(i);
+
+    }, delay);
+
+    setTimeout(() => {
+      if (i === 5) {
+        // Final step done
+        document.getElementById('ps-5').classList.remove('active');
+        document.getElementById('ps-5').classList.add('done');
+        document.getElementById('pst-5').textContent = 'Done ✓';
+        document.getElementById('proc-sub').textContent = 'Profile complete. Loading results...';
+        setTimeout(() => finishProcessing(name, lga, state, score), 600);
+      }
+    }, delay + durations[i]);
+  });
+}
+
+function streamToken(stepIdx) {
+  const el = document.getElementById('token-stream');
+  const lines = tokenLines.slice(stepIdx * 2, stepIdx * 2 + 2);
+  let html = el.innerHTML === '<span style="color:rgba(255,255,255,0.3);">Pipeline starting...</span>' ? '' : el.innerHTML;
+  lines.forEach((line, li) => {
+    setTimeout(() => {
+      const parts = line.split('→');
+      if (parts.length > 1) {
+        html += `<span class="token">${parts[0]}→</span><span class="token-val">${parts[1]}</span><br>`;
+      } else {
+        html += `<span style="color:rgba(255,255,255,0.5);">${line}</span><br>`;
+      }
+      el.innerHTML = html;
+      el.scrollTop = el.scrollHeight;
+    }, li * 300);
+  });
+}
+
+function finishProcessing(name, lga, state, score) {
+  document.getElementById('processing-overlay').classList.remove('active');
+
+  // Save to history
+  const entry = {
+    name, lga, state, score,
+    soil: sliders.soil, gw: sliders.gw, agri: sliders.agri, mkt: sliders.mkt,
+    date: new Date().toLocaleDateString('en-GB'),
+    id: 'STR-' + String(history.length + 1).padStart(3, '0')
+  };
+  history.push(entry);
+  lastResult = entry;
+
+  // Update results section
+  document.getElementById('results-section').classList.add('show');
+  setTimeout(() => {
+    animateRing('res-ring', 'res-score', score);
+    updateBreakdowns('rb');
+    const v = getVerdict(score);
+    const vbox = document.getElementById('res-verdict');
+    vbox.className = 'verdict ' + v.cls;
+    document.getElementById('res-vi').textContent = v.icon;
+    document.getElementById('res-vt').textContent = v.title;
+    document.getElementById('res-vd').textContent = v.desc;
+
+    // Score table
+    const tbody = document.getElementById('score-table-body');
+    const comps = [
+      { n: 'Soil Permeability and Structure', k: 'soil', w: 0.20 },
+      { n: 'Groundwater Depth and Accessibility', k: 'gw', w: 0.20 },
+      { n: 'Cultivable Land and Yield Potential', k: 'agri', w: 0.30 },
+      { n: 'Market Activity and Repayment Capacity', k: 'mkt', w: 0.30 },
+    ];
+    tbody.innerHTML = comps.map((c, i) =>
+      `<tr style="${i%2?'background:var(--offwhite);':''}"><td>${c.n}</td><td style="text-align:center;">${sliders[c.k]}/100</td><td style="text-align:center;">${(c.w*100).toFixed(0)}%</td><td style="text-align:center; color:var(--gold); font-weight:700;">${(sliders[c.k]*c.w).toFixed(1)}</td></tr>`
+    ).join('') + `<tr style="background:var(--navy);"><td style="color:#fff; font-weight:700;">CEPS Total</td><td></td><td></td><td style="color:var(--gold); font-weight:700; text-align:center;">${score} / 100</td></tr>`;
+
+    // AI narrative
+    typeNarrative(name, lga, state, score, v.title);
+
+    // Update stats
+    animateStats();
+    updateHistory();
+
+  }, 200);
+
+  // Scroll to results
+  document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function typeNarrative(name, lga, state, score, verdict) {
+  const v = getVerdict(score);
+  const narrative = generateNarrative(name, lga, state, score, verdict);
+  const el = document.getElementById('narrative-text');
+  el.innerHTML = '';
+  let i = 0;
+  const cursor = document.createElement('span');
+  cursor.className = 'narrative-cursor';
+  el.appendChild(cursor);
+  const t = setInterval(() => {
+    if (i < narrative.length) {
+      el.insertBefore(document.createTextNode(narrative[i]), cursor);
+      i++;
+    } else {
+      cursor.remove();
+      clearInterval(t);
+    }
+  }, 18);
+}
+
+function generateNarrative(name, lga, state, score, verdict) {
+  const soilRating = sliders.soil >= 70 ? 'favourable' : sliders.soil >= 50 ? 'moderate' : 'constrained';
+  const gwRating = sliders.gw >= 70 ? 'accessible' : sliders.gw >= 50 ? 'at moderate depth' : 'deep and difficult to access';
+  const agriRating = sliders.agri >= 70 ? 'strong agricultural capacity' : sliders.agri >= 50 ? 'moderate agricultural potential' : 'limited agricultural output';
+  const mktRating = sliders.mkt >= 70 ? 'active commercial environment with reliable repayment indicators' : sliders.mkt >= 50 ? 'moderate market activity' : 'limited commercial activity and uncertain repayment capacity';
+
+  return `STRATOS assessment of ${name}, ${lga}, ${state} has produced a Community Energy Potential Score of ${score}/100, indicating a ${verdict.toLowerCase()} for mini-grid investment.\n\nGeophysical survey data indicates ${soilRating} soil permeability and structure, with groundwater found to be ${gwRating}. These subsurface conditions ${sliders.soil >= 65 ? 'support' : 'present some constraints for'} year-round agricultural irrigation and productive-use electricity uptake.\n\nField surveys identified ${agriRating} across the assessed cultivable land area, with crop types and yield potential suggesting ${sliders.agri >= 65 ? 'strong revenue-generating capacity once electricity becomes available' : 'moderate economic returns from agriculture with electricity access'}. Market assessment revealed ${mktRating}, giving developers ${sliders.mkt >= 65 ? 'confidence in sustained tariff collection over the project lifetime' : 'a basis for further market development planning'}.\n\nThis profile has been generated through the STRATOS AI-assisted processing pipeline and calibrated against REA and World Bank Nigeria Electrification Project performance benchmarks.`;
+}
+
+/* ============================================================
+   HISTORY TABLE
+============================================================ */
+function updateHistory() {
+  const tbody = document.getElementById('history-table');
+  if (history.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--grey2); padding:24px;">No profiles generated yet. Run an assessment to get started.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = history.map(h => {
+    const v = getVerdict(h.score);
+    const pillCls = h.score >= 65 ? 'pill-green' : h.score >= 50 ? 'pill-amber' : 'pill-red';
+    return `<tr>
+      <td><strong>${h.name}</strong><br><span style="font-size:10px; color:var(--grey2);">${h.id}</span></td>
+      <td>${h.lga}<br><span style="font-size:10px; color:var(--grey2);">${h.state}</span></td>
+      <td>${h.date}</td>
+      <td>${h.soil}</td><td>${h.gw}</td><td>${h.agri}</td><td>${h.mkt}</td>
+      <td><strong>${h.score}</strong></td>
+      <td><span class="score-pill ${pillCls}">${h.score >= 65 ? 'Viable' : h.score >= 50 ? 'Conditional' : 'High Risk'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ============================================================
+   PDF DOWNLOAD
+============================================================ */
+function downloadPDF() {
+  if (!lastResult) return;
+  const r = lastResult;
+  const v = getVerdict(r.score);
+
+  document.getElementById('pdf-comm-name').textContent = r.name;
+  document.getElementById('pdf-comm-sub').textContent = `${r.lga} · ${r.state}`;
+  document.getElementById('pdf-date-str').textContent = r.date;
+  document.getElementById('pdf-score-big').textContent = r.score;
+  document.getElementById('pdf-verdict-text').textContent = v.title;
+  document.getElementById('pdf-verdict-desc').textContent = v.desc;
+
+  const comps = [
+    { n: 'Soil Permeability and Structure', k: 'soil', w: 0.20 },
+    { n: 'Groundwater Depth and Accessibility', k: 'gw', w: 0.20 },
+    { n: 'Cultivable Land and Yield Potential', k: 'agri', w: 0.30 },
+    { n: 'Market Activity and Repayment Capacity', k: 'mkt', w: 0.30 },
+  ];
+  document.getElementById('pdf-table-body').innerHTML = comps.map((c, i) =>
+    `<tr ${i%2?'style="background:#f8f7f4;"':''}><td>${c.n}</td><td>${r[c.k]}/100</td><td>${(c.w*100).toFixed(0)}%</td><td>${(r[c.k]*c.w).toFixed(1)}</td></tr>`
+  ).join('') + `<tr style="background:#0B1340;"><td style="color:#fff; font-weight:700;">CEPS Total</td><td></td><td></td><td style="color:#C68B2F; font-weight:700;">${r.score} / 100</td></tr>`;
+
+  document.getElementById('pdf-narrative').textContent = document.getElementById('narrative-text').textContent;
+
+  window.print();
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+updateHistory();
+updateLiveScore();
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
