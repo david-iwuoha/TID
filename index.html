@@ -39,24 +39,49 @@ input, select, textarea, button { font-family: 'Google Sans', sans-serif; }
   position: fixed; inset: 0; z-index: 1000;
   background: var(--navy);
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
+  overflow-y: auto;
   transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16,1,0.3,1);
 }
 #landing.exit { opacity: 0; transform: translateY(-40px); pointer-events: none; }
+#bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
 
-#bg-canvas { position: absolute; inset: 0; pointer-events: none; }
+/* NAV BAR */
+.l-nav {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: 64px;
+  background: rgba(11,19,64,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(198,139,47,0.15);
+  opacity: 0; animation: fadeUp 0.6s ease forwards 0.1s;
+}
+.l-nav-logo { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: 4px; }
+.l-nav-logo .o { color: var(--gold); }
+.l-nav-right { display: flex; align-items: center; gap: 24px; }
+.l-nav-link { font-size: 12px; color: rgba(255,255,255,0.5); cursor: pointer; transition: color 0.2s; letter-spacing: 0.5px; }
+.l-nav-link:hover { color: var(--gold); }
+.l-nav-btn {
+  background: var(--gold); color: var(--navy);
+  border: none; padding: 8px 20px;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: all 0.3s ease; letter-spacing: 0.5px;
+}
+.l-nav-btn:hover { background: var(--gold2); transform: translateY(-1px); }
 
-.landing-inner { position: relative; z-index: 1; text-align: center; padding: 40px; }
-
+/* HERO */
+.l-hero {
+  position: relative; z-index: 1;
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 80px 40px 60px;
+}
 .l-eyebrow {
   font-size: 11px; font-weight: 600; letter-spacing: 4px;
   text-transform: uppercase; color: var(--gold);
   margin-bottom: 28px; opacity: 0;
   animation: fadeUp 0.8s ease forwards 0.3s;
 }
-
 .l-logo {
-  font-size: clamp(60px, 12vw, 120px);
+  font-size: clamp(60px, 12vw, 110px);
   font-weight: 700; color: #fff;
   letter-spacing: 10px; line-height: 1;
   margin-bottom: 6px; opacity: 0;
@@ -68,28 +93,37 @@ input, select, textarea, button { font-family: 'Google Sans', sans-serif; }
   background: var(--gold); border-radius: 50%;
   vertical-align: super; margin-left: 3px;
 }
-
+.l-gold-line {
+  width: 60px; height: 3px; background: var(--gold);
+  margin: 20px auto 24px; opacity: 0;
+  animation: scaleIn 0.6s ease forwards 0.7s;
+}
 .l-sub {
-  font-size: clamp(13px, 2vw, 17px); font-weight: 300;
-  color: rgba(255,255,255,0.5); letter-spacing: 2px;
-  text-transform: uppercase; margin-bottom: 48px; opacity: 0;
+  font-size: clamp(11px, 1.5vw, 14px); font-weight: 400;
+  color: rgba(255,255,255,0.45); letter-spacing: 3px;
+  text-transform: uppercase; margin-bottom: 28px; opacity: 0;
   animation: fadeUp 0.8s ease forwards 0.8s;
 }
-
-.l-tagline {
-  font-size: clamp(16px, 2.5vw, 22px); font-weight: 400;
-  color: rgba(255,255,255,0.75); max-width: 560px;
-  margin: 0 auto 56px; line-height: 1.6; opacity: 0;
-  animation: fadeUp 0.8s ease forwards 1s;
+.l-headline {
+  font-size: clamp(22px, 4vw, 40px); font-weight: 700;
+  color: #fff; max-width: 720px;
+  margin: 0 auto 20px; line-height: 1.25; opacity: 0;
+  animation: fadeUp 0.9s ease forwards 0.9s;
 }
-
+.l-headline span { color: var(--gold); }
+.l-tagline {
+  font-size: clamp(14px, 1.8vw, 17px); font-weight: 300;
+  color: rgba(255,255,255,0.6); max-width: 560px;
+  margin: 0 auto 48px; line-height: 1.7; opacity: 0;
+  animation: fadeUp 0.8s ease forwards 1.1s;
+}
 .l-btn {
   display: inline-flex; align-items: center; gap: 12px;
   background: var(--gold); color: var(--navy);
   border: none; padding: 16px 40px;
   font-size: 15px; font-weight: 700; letter-spacing: 0.5px;
   cursor: pointer; transition: all 0.3s ease;
-  opacity: 0; animation: fadeUp 0.8s ease forwards 1.2s;
+  opacity: 0; animation: fadeUp 0.8s ease forwards 1.3s;
   position: relative; overflow: hidden;
 }
 .l-btn::after {
@@ -101,12 +135,122 @@ input, select, textarea, button { font-family: 'Google Sans', sans-serif; }
 .l-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 40px rgba(198,139,47,0.45); }
 .l-btn svg { transition: transform 0.3s ease; }
 .l-btn:hover svg { transform: translateX(4px); }
-
-.l-gold-line {
-  width: 60px; height: 3px; background: var(--gold);
-  margin: 0 auto 32px; opacity: 0;
-  animation: scaleIn 0.6s ease forwards 0.7s;
+.l-scroll-hint {
+  position: absolute; bottom: 32px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  opacity: 0; animation: fadeIn 1s ease forwards 2s;
 }
+.l-scroll-hint span { font-size: 9px; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+.l-scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollPulse 1.8s ease infinite; }
+
+/* PROBLEM SECTION */
+.l-section {
+  position: relative; z-index: 1;
+  padding: 80px 48px; max-width: 1100px;
+  margin: 0 auto; width: 100%;
+}
+.l-sec-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 14px;
+}
+.l-sec-title {
+  font-size: clamp(24px, 3.5vw, 36px); font-weight: 700;
+  color: #fff; line-height: 1.25; max-width: 660px; margin-bottom: 16px;
+}
+.l-sec-body {
+  font-size: 15px; color: rgba(255,255,255,0.6);
+  line-height: 1.75; max-width: 620px; margin-bottom: 32px;
+}
+
+/* PROBLEM CARDS */
+.l-problem-cards {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 32px;
+}
+.l-prob-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: 3px solid var(--gold);
+  padding: 22px 20px;
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1), background 0.3s;
+}
+.l-prob-card:hover { background: rgba(255,255,255,0.07); }
+.l-prob-card.visible { opacity: 1; transform: translateY(0); }
+.l-prob-card-icon { font-size: 26px; margin-bottom: 12px; }
+.l-prob-card-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.l-prob-card-text { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+/* DIVIDER */
+.l-divider {
+  position: relative; z-index: 1;
+  border: none; border-top: 1px solid rgba(255,255,255,0.07);
+  margin: 0 48px;
+}
+
+/* SOLUTION */
+.l-solution-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+}
+.l-solution-left {}
+.l-solution-right { display: flex; flex-direction: column; gap: 14px; }
+.l-pillar {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 16px; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  opacity: 0; transform: translateX(20px);
+  transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.l-pillar.visible { opacity: 1; transform: translateX(0); }
+.l-pillar-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(198,139,47,0.12); border: 1.5px solid rgba(198,139,47,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.l-pillar-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.l-pillar-text { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.55; }
+
+/* RUNNING NUMBERS */
+.l-numbers {
+  position: relative; z-index: 1;
+  background: rgba(198,139,47,0.06);
+  border-top: 1px solid rgba(198,139,47,0.15);
+  border-bottom: 1px solid rgba(198,139,47,0.15);
+  padding: 64px 48px;
+}
+.l-numbers-inner { max-width: 1100px; margin: 0 auto; }
+.l-numbers-grid {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 2px; background: rgba(198,139,47,0.1); margin-top: 36px;
+}
+.l-num-cell {
+  background: rgba(11,19,64,0.6); padding: 28px 20px; text-align: center;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.l-num-cell.visible { opacity: 1; transform: translateY(0); }
+.l-num-big {
+  font-size: 38px; font-weight: 700; color: var(--gold);
+  display: block; line-height: 1; margin-bottom: 6px;
+}
+.l-num-label { font-size: 11px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+/* FOOTER */
+.l-footer {
+  position: relative; z-index: 1;
+  background: rgba(0,0,0,0.3);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 32px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.l-footer-logo { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 3px; }
+.l-footer-logo .o { color: var(--gold); }
+.l-footer-text { font-size: 11px; color: rgba(255,255,255,0.3); text-align: center; line-height: 1.7; }
+.l-footer-right { font-size: 11px; color: rgba(255,255,255,0.25); text-align: right; line-height: 1.7; }
+
+@keyframes scrollPulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+@keyframes fadeIn { to { opacity: 1; } }
 
 /* ============================================================
    APP SHELL
@@ -487,20 +631,159 @@ input, select, textarea, button { font-family: 'Google Sans', sans-serif; }
 ============================================================ -->
 <div id="landing">
   <canvas id="bg-canvas"></canvas>
-  <div class="landing-inner">
-    <div class="l-eyebrow">Rural Energy Intelligence Platform</div>
+
+  <!-- NAV -->
+  <nav class="l-nav">
+    <div class="l-nav-logo">STRAT<span class="o">O</span>S</div>
+    <div class="l-nav-right">
+      <span class="l-nav-link" onclick="document.getElementById('l-problem').scrollIntoView({behavior:'smooth'})">The Problem</span>
+      <span class="l-nav-link" onclick="document.getElementById('l-solution').scrollIntoView({behavior:'smooth'})">Our Solution</span>
+      <span class="l-nav-link" onclick="document.getElementById('l-numbers').scrollIntoView({behavior:'smooth'})">Impact</span>
+      <button class="l-nav-btn" onclick="enterApp()">Open Dashboard</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="l-hero">
+    <div class="l-eyebrow">Rural Energy Intelligence Platform &nbsp;·&nbsp; Nigeria</div>
     <div class="l-logo">STRAT<span class="o">O</span>S<span class="dot"></span></div>
     <div class="l-gold-line"></div>
     <div class="l-sub">Community Viability Intelligence</div>
+    
     <div class="l-tagline">
-      Making rural energy investment a calculated decision, not a speculative one.
-      Deploy field intelligence. Score communities. Enable investment.
+      STRATOS is the rural energy intelligence platform that gives developers field-verified, bankable site data before they commit a single dollar to a community.
     </div>
     <button class="l-btn" onclick="enterApp()">
       <span>Proceed to Dashboard</span>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </button>
+    <div class="l-scroll-hint">
+      <span>Scroll</span>
+      <div class="l-scroll-line"></div>
+    </div>
   </div>
+
+  <!-- PROBLEM -->
+  <div class="l-section" id="l-problem">
+    <div class="l-sec-label">The Problem</div>
+    <div class="l-sec-title">Over 60% of Nigeria's Solar Mini-Grids Are Failing Financially</div>
+    <div class="l-sec-body">Developers are committing over $200,000 per site using desktop research and guesswork. The question that is never answered before deployment is simple: can this community actually sustain a productive mini-grid? The data to answer it does not exist in any structured, bankable form for rural Nigerian communities. That is the gap STRATOS fills.</div>
+    <div class="l-problem-cards">
+      <div class="l-prob-card" data-reveal>
+        <div class="l-prob-card-icon">💸</div>
+        <div class="l-prob-card-title">$200,000 Committed Per Site</div>
+        <div class="l-prob-card-text">Developers commit this capital at the site selection stage using informal desktop estimates and anecdotal data. No standardised field-verified assessment exists.</div>
+      </div>
+      <div class="l-prob-card" data-reveal>
+        <div class="l-prob-card-icon">📉</div>
+        <div class="l-prob-card-title">60% Financial Failure Rate</div>
+        <div class="l-prob-card-text">Industry analysis confirms the data quality gap at site selection is the primary driver of mini-grid project failure across Nigeria. The technology is not the issue.</div>
+      </div>
+      <div class="l-prob-card" data-reveal>
+        <div class="l-prob-card-icon">🔍</div>
+        <div class="l-prob-card-title">150,000+ Unassessed Communities</div>
+        <div class="l-prob-card-text">The REA has identified over 150,000 communities without reliable electricity. Not one has a standardised viability profile a developer can rely on.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="l-divider">
+
+  <!-- SOLUTION -->
+  <div class="l-section" id="l-solution">
+    <div class="l-solution-grid">
+      <div class="l-solution-left">
+        <div class="l-sec-label">Our Solution</div>
+        <div class="l-sec-title">Community Viability Profiles. One Bankable Score.</div>
+        <div class="l-sec-body">STRATOS deploys field teams to produce Community Viability Profiles backed by geophysical science, agricultural data, and market economics. Every profile generates a CEPS Score, a 100-point index that works like a credit score for rural energy investment. One number. Bankable. Defensible. Ready for a financier.</div>
+        <div style="margin-top:24px; padding:16px 20px; background:rgba(198,139,47,0.1); border-left:3px solid var(--gold);">
+          <div style="font-size:18px; font-weight:700; color:var(--gold); margin-bottom:4px;">A failed mini-grid costs $200,000.</div>
+          <div style="font-size:13px; color:rgba(255,255,255,0.6); line-height:1.6;">A STRATOS profile costs $5,000. That is 2.5% of the downside it prevents.</div>
+        </div>
+      </div>
+      <div class="l-solution-right">
+        <div class="l-pillar" data-reveal-right>
+          <div class="l-pillar-icon">🌍</div>
+          <div>
+            <div class="l-pillar-title">Geophysical Assessment</div>
+            <div class="l-pillar-text">Electrical Resistivity Tomography maps subsurface soil composition and groundwater depth, the primary driver of agricultural capacity and repayment potential.</div>
+          </div>
+        </div>
+        <div class="l-pillar" data-reveal-right>
+          <div class="l-pillar-icon">🌾</div>
+          <div>
+            <div class="l-pillar-title">Agricultural Productivity Mapping</div>
+            <div class="l-pillar-text">Field teams survey cultivable land, crop types, and yield potential to establish the real revenue base a developer can model against tariff projections.</div>
+          </div>
+        </div>
+        <div class="l-pillar" data-reveal-right>
+          <div class="l-pillar-icon">📊</div>
+          <div>
+            <div class="l-pillar-title">Market and Economic Survey</div>
+            <div class="l-pillar-text">Commercial activity, income levels, and willingness to pay tariffs are assessed to confirm the community can sustain payments over the project lifetime.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="l-divider">
+
+  <!-- RUNNING NUMBERS -->
+  <div class="l-numbers" id="l-numbers">
+    <div class="l-numbers-inner">
+      <div class="l-sec-label">The Numbers</div>
+      <div class="l-sec-title">Why the Market Is Ready Right Now</div>
+      <div class="l-numbers-grid">
+        <div class="l-num-cell" data-reveal-num data-target="150000" data-suffix="+" data-prefix="">
+          <span class="l-num-big" data-counter>0</span>
+          <div class="l-num-label">Communities identified by the REA without reliable electricity</div>
+        </div>
+        <div class="l-num-cell" data-reveal-num data-target="750" data-suffix="M" data-prefix="$">
+          <span class="l-num-big" data-counter>0</span>
+          <div class="l-num-label">World Bank DARES funding active for mini-grid deployment in Nigeria</div>
+        </div>
+        <div class="l-num-cell" data-reveal-num data-target="5000" data-suffix="" data-prefix="$">
+          <span class="l-num-big" data-counter>0</span>
+          <div class="l-num-label">Cost of a STRATOS profile against $200,000 at risk per site</div>
+        </div>
+        <div class="l-num-cell" data-reveal-num data-target="90" data-suffix="%" data-prefix="">
+          <span class="l-num-big" data-counter>0</span>
+          <div class="l-num-label">Gross margin per profile, structurally protected by university partnerships</div>
+        </div>
+        <div class="l-num-cell" data-reveal-num data-target="280" data-suffix="" data-prefix="">
+          <span class="l-num-big" data-counter>0</span>
+          <div class="l-num-label">Profiles projected by Year 3, each enabling one bankable investment decision</div>
+        </div>
+        <div class="l-num-cell" data-reveal-num data-target="56000" data-suffix="+" data-prefix="">
+          <span class="l-num-big" data-counter>0</span>
+          <div class="l-num-label">Households potentially reached if each enabled mini-grid serves 200 homes</div>
+        </div>
+        <div class="l-num-cell" data-reveal-num data-target="994" data-suffix="K" data-prefix="$">
+          <span class="l-num-big" data-counter>0</span>
+          <div class="l-num-label">Projected net profit in Year 3 as platform scales to 14 staff</div>
+        </div>
+        <div class="l-num-cell" data-reveal-num data-target="1350" data-suffix="" data-prefix="">
+          <span class="l-num-big" data-counter>0</span>
+          <div class="l-num-label">New mini-grids the REA is deploying right now under DARES, each needing site intelligence</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="l-footer">
+    <div class="l-footer-logo">STRAT<span class="o">O</span>S</div>
+    <div class="l-footer-text">
+      Submitted to the TID 5.0 Energy Startup Challenge &nbsp;·&nbsp; Semifinal Round &nbsp;·&nbsp; June 2026<br>
+      <span style="color:rgba(255,255,255,0.2);">Top 20 of 166 Applications across Four African Countries</span>
+    </div>
+    <div class="l-footer-right">
+      The market is ready.<br>The methodology is built.<br>
+      <span style="color:var(--gold); font-weight:600;">STRATOS needs the room to prove it.</span>
+    </div>
+  </footer>
+
 </div>
 
 <!-- ============================================================
@@ -943,51 +1226,26 @@ input, select, textarea, button { font-family: 'Google Sans', sans-serif; }
   </div>
 </div>
 
-<!-- PDF CONTENT (hidden, prints only) -->
-<div id="pdf-content">
-  <div class="pdf-page">
-    <div class="pdf-header">
-      <div>
-        <div class="pdf-logo">STRAT<span class="o">O</span>S</div>
-        <div style="font-size:7px; color:#aaa; letter-spacing:1.5px; text-transform:uppercase; margin-top:2px;">Rural Energy Intelligence Platform</div>
+<!-- PDF PREVIEW MODAL -->
+<div id="pdf-modal" style="display:none; position:fixed; inset:0; z-index:2000; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); align-items:center; justify-content:center;" onclick="if(event.target===this)closePDFModal()">
+  <div style="background:#fff; width:min(820px,96vw); max-height:92vh; display:flex; flex-direction:column; box-shadow:0 24px 80px rgba(0,0,0,0.5); animation:scaleIn 0.35s cubic-bezier(0.16,1,0.3,1);">
+    <!-- Modal top bar -->
+    <div style="background:#0B1340; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="font-size:13px; font-weight:700; color:#fff; letter-spacing:2px;">STRAT<span style="color:#C68B2F;">O</span>S</span>
+        <span style="font-size:11px; color:rgba(255,255,255,0.4);">|</span>
+        <span style="font-size:11px; color:rgba(255,255,255,0.6);">Community Viability Profile Preview</span>
       </div>
-      <div class="pdf-meta">
-        Community Viability Profile<br>
-        <span id="pdf-date-str"></span><br>
-        STRATOS Assessment System v1.0
-      </div>
-    </div>
-    <div class="pdf-comm-name" id="pdf-comm-name">Community Name</div>
-    <div class="pdf-comm-sub" id="pdf-comm-sub">LGA · State</div>
-    <div class="pdf-score-row" id="pdf-score-row">
-      <div>
-        <div class="pdf-score-big" id="pdf-score-big">0</div>
-        <div class="pdf-score-label">CEPS Score / 100</div>
-      </div>
-      <div>
-        <div class="pdf-verdict-text" id="pdf-verdict-text">Verdict</div>
-        <div class="pdf-verdict-desc" id="pdf-verdict-desc">Description</div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button onclick="triggerPDFDownload()" style="background:#C68B2F; color:#0B1340; border:none; padding:8px 18px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.background='#e0a53a'" onmouseout="this.style.background='#C68B2F'">
+          ⬇ Download PDF
+        </button>
+        <button onclick="closePDFModal()" style="background:rgba(255,255,255,0.1); color:#fff; border:none; width:32px; height:32px; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">✕</button>
       </div>
     </div>
-    <div class="pdf-section-title">CEPS Score Breakdown</div>
-    <table class="pdf-table">
-      <thead><tr><th>Component</th><th>Raw Score</th><th>Weight</th><th>Weighted Score</th></tr></thead>
-      <tbody id="pdf-table-body"></tbody>
-    </table>
-    <div class="pdf-section-title">Intelligence Narrative</div>
-    <div class="pdf-narrative" id="pdf-narrative"></div>
-    <div class="pdf-section-title">Score Interpretation</div>
-    <table class="pdf-table">
-      <thead><tr><th>Range</th><th>Verdict</th><th>Recommended Action</th></tr></thead>
-      <tbody>
-        <tr><td>Above 65</td><td style="color:#16a34a; font-weight:700;">Viable</td><td>Proceed to investment with confidence</td></tr>
-        <tr><td>50 to 65</td><td style="color:#d97706; font-weight:700;">Conditional</td><td>Proceed with specific risk mitigations noted</td></tr>
-        <tr><td>Below 50</td><td style="color:#dc2626; font-weight:700;">High Risk</td><td>Seek alternative community before committing capital</td></tr>
-      </tbody>
-    </table>
-    <div class="pdf-footer">
-      <span>STRATOS · Rural Energy Intelligence Platform · Nigeria</span>
-      <span>A failed mini-grid costs $200,000. A STRATOS profile costs $5,000.</span>
+    <!-- Scrollable preview -->
+    <div style="overflow-y:auto; flex:1; background:#e8e6e0; padding:24px; display:flex; justify-content:center;">
+      <div id="pdf-preview-doc" style="background:#fff; width:100%; max-width:740px; box-shadow:0 4px 24px rgba(0,0,0,0.15); font-family:'Google Sans',sans-serif;"></div>
     </div>
   </div>
 </div>
@@ -1371,19 +1629,26 @@ function updateHistory() {
 }
 
 /* ============================================================
-   PDF DOWNLOAD
+   PDF MODAL + DOWNLOAD
 ============================================================ */
 function downloadPDF() {
   if (!lastResult) return;
-  const r = lastResult;
-  const v = getVerdict(r.score);
+  buildPDFPreview(lastResult);
+  const modal = document.getElementById('pdf-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
 
-  document.getElementById('pdf-comm-name').textContent = r.name;
-  document.getElementById('pdf-comm-sub').textContent = `${r.lga} · ${r.state}`;
-  document.getElementById('pdf-date-str').textContent = r.date;
-  document.getElementById('pdf-score-big').textContent = r.score;
-  document.getElementById('pdf-verdict-text').textContent = v.title;
-  document.getElementById('pdf-verdict-desc').textContent = v.desc;
+function closePDFModal() {
+  document.getElementById('pdf-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function buildPDFPreview(r) {
+  const v = getVerdict(r.score);
+  const verdictColor = r.score >= 65 ? '#16a34a' : r.score >= 50 ? '#d97706' : '#dc2626';
+  const verdictBg = r.score >= 65 ? '#f0fdf4' : r.score >= 50 ? '#fffbeb' : '#fef2f2';
+  const ringPct = (r.score / 100) * 283;
 
   const comps = [
     { n: 'Soil Permeability and Structure', k: 'soil', w: 0.20 },
@@ -1391,14 +1656,304 @@ function downloadPDF() {
     { n: 'Cultivable Land and Yield Potential', k: 'agri', w: 0.30 },
     { n: 'Market Activity and Repayment Capacity', k: 'mkt', w: 0.30 },
   ];
-  document.getElementById('pdf-table-body').innerHTML = comps.map((c, i) =>
-    `<tr ${i%2?'style="background:#f8f7f4;"':''}><td>${c.n}</td><td>${r[c.k]}/100</td><td>${(c.w*100).toFixed(0)}%</td><td>${(r[c.k]*c.w).toFixed(1)}</td></tr>`
-  ).join('') + `<tr style="background:#0B1340;"><td style="color:#fff; font-weight:700;">CEPS Total</td><td></td><td></td><td style="color:#C68B2F; font-weight:700;">${r.score} / 100</td></tr>`;
 
-  document.getElementById('pdf-narrative').textContent = document.getElementById('narrative-text').textContent;
+  const tableRows = comps.map((c, i) => `
+    <tr style="background:${i%2?'#f8f7f4':'#fff'};">
+      <td style="padding:7px 12px; font-size:12px; border-bottom:1px solid #e8e3d8;">${c.n}</td>
+      <td style="padding:7px 12px; font-size:12px; text-align:center; border-bottom:1px solid #e8e3d8;">${r[c.k]} / 100</td>
+      <td style="padding:7px 12px; font-size:12px; text-align:center; border-bottom:1px solid #e8e3d8;">${(c.w*100).toFixed(0)}%</td>
+      <td style="padding:7px 12px; font-size:12px; text-align:center; font-weight:700; color:#C68B2F; border-bottom:1px solid #e8e3d8;">${(r[c.k]*c.w).toFixed(1)}</td>
+    </tr>`).join('');
 
-  window.print();
+  const narrative = document.getElementById('narrative-text') ? document.getElementById('narrative-text').textContent : generateNarrative(r.name, r.lga, r.state, r.score, v.title);
+
+  document.getElementById('pdf-preview-doc').innerHTML = `
+  <div style="font-family:'Google Sans',sans-serif;">
+
+    <!-- HEADER -->
+    <div style="background:#0B1340; padding:24px 32px 20px; position:relative; overflow:hidden;">
+      <div style="position:absolute; right:-30px; top:-30px; width:200px; height:200px; border-radius:50%; border:40px solid rgba(198,139,47,0.08);"></div>
+      <div style="position:absolute; right:5px; bottom:-50px; width:140px; height:140px; border-radius:50%; border:30px solid rgba(198,139,47,0.05);"></div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; position:relative; z-index:1;">
+        <div>
+          <div style="font-size:32px; font-weight:700; color:#fff; letter-spacing:6px; line-height:1; margin-bottom:3px;">STRAT<span style="color:#C68B2F;">O</span>S<span style="display:inline-block;width:8px;height:8px;background:#C68B2F;border-radius:50%;vertical-align:super;margin-left:2px;"></span></div>
+          <div style="font-size:9px; color:rgba(255,255,255,0.4); letter-spacing:2.5px; text-transform:uppercase;">Rural Energy Intelligence Platform</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:9px; font-weight:700; color:#C68B2F; letter-spacing:2px; text-transform:uppercase; margin-bottom:4px;">Community Viability Profile</div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.5); line-height:1.8;">${r.date}<br>Profile ID: ${r.id}<br>STRATOS Assessment v1.0</div>
+        </div>
+      </div>
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.1); position:relative; z-index:1;">
+        <div style="font-size:20px; font-weight:700; color:#fff; margin-bottom:2px;">${r.name}</div>
+        <div style="font-size:10px; color:rgba(255,255,255,0.45); letter-spacing:2px; text-transform:uppercase;">${r.lga} &nbsp;·&nbsp; ${r.state} &nbsp;·&nbsp; Field Team: ${document.getElementById('f-team').value || 'STRATOS Field Team'}</div>
+      </div>
+    </div>
+
+    <!-- CEPS SCORE HERO -->
+    <div style="display:flex; align-items:stretch; border-bottom:3px solid #0B1340;">
+      <div style="background:#0B1340; padding:28px 32px; display:flex; align-items:center; gap:20px; min-width:260px;">
+        <div style="position:relative; flex-shrink:0;">
+          <svg width="90" height="90" viewBox="0 0 90 90" style="transform:rotate(-90deg);">
+            <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+            <circle cx="45" cy="45" r="38" fill="none" stroke="${verdictColor}" stroke-width="8" stroke-linecap="round"
+              stroke-dasharray="238.76" stroke-dashoffset="${238.76 - (r.score/100)*238.76}"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <span style="font-size:22px;font-weight:700;color:${verdictColor};line-height:1;">${r.score}</span>
+            <span style="font-size:9px;color:rgba(255,255,255,0.4);">/100</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:9px; font-weight:700; color:rgba(255,255,255,0.4); letter-spacing:2px; text-transform:uppercase; margin-bottom:4px;">CEPS Score</div>
+          <div style="font-size:16px; font-weight:700; color:${verdictColor}; margin-bottom:2px;">${v.title}</div>
+          <div style="font-size:10px; color:rgba(255,255,255,0.5); line-height:1.5; max-width:160px;">${v.desc}</div>
+        </div>
+      </div>
+      <div style="flex:1; padding:20px 24px; display:grid; grid-template-columns:1fr 1fr; gap:10px; align-content:center;">
+        ${comps.map(c => `
+          <div>
+            <div style="font-size:9px; color:#888; margin-bottom:4px;">${c.n} (${(c.w*100).toFixed(0)}%)</div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="flex:1; height:5px; background:#e8e3d8; border-radius:3px; overflow:hidden;">
+                <div style="width:${r[c.k]}%; height:100%; background:#C68B2F; border-radius:3px;"></div>
+              </div>
+              <div style="font-size:11px; font-weight:700; color:#0B1340; width:48px; text-align:right;">${r[c.k]}/100</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div style="padding:24px 32px;">
+
+      <!-- Score table -->
+      <div style="font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#C68B2F; margin-bottom:8px;">CEPS Score Breakdown</div>
+      <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+        <thead>
+          <tr style="background:#0B1340;">
+            <th style="color:#fff; padding:8px 12px; text-align:left; font-size:10px; font-weight:600; letter-spacing:0.5px;">Component</th>
+            <th style="color:#fff; padding:8px 12px; text-align:center; font-size:10px; font-weight:600;">Raw Score</th>
+            <th style="color:#fff; padding:8px 12px; text-align:center; font-size:10px; font-weight:600;">Weight</th>
+            <th style="color:#fff; padding:8px 12px; text-align:center; font-size:10px; font-weight:600;">Weighted</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableRows}
+          <tr style="background:#0B1340;">
+            <td style="padding:8px 12px; color:#fff; font-weight:700; font-size:12px;">CEPS Total</td>
+            <td></td><td></td>
+            <td style="padding:8px 12px; text-align:center; color:#C68B2F; font-weight:700; font-size:14px;">${r.score} / 100</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Narrative -->
+      <div style="font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#C68B2F; margin-bottom:8px;">AI-Generated Intelligence Narrative</div>
+      <div style="border-left:3px solid #C68B2F; background:#fdf8f0; padding:14px 18px; font-size:12px; color:#444; line-height:1.75; margin-bottom:20px; white-space:pre-line;">${narrative}</div>
+
+      <!-- Verdict bands -->
+      <div style="font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#C68B2F; margin-bottom:8px;">Score Interpretation Guide</div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:20px;">
+        <div style="padding:10px 12px; border-top:3px solid #16a34a; background:#f0fdf4; text-align:center;">
+          <div style="font-size:13px; font-weight:700; color:#16a34a; margin-bottom:3px;">Above 65</div>
+          <div style="font-size:9px; color:#555; line-height:1.5;">Viable. Proceed to investment with confidence.</div>
+        </div>
+        <div style="padding:10px 12px; border-top:3px solid #d97706; background:#fffbeb; text-align:center;">
+          <div style="font-size:13px; font-weight:700; color:#d97706; margin-bottom:3px;">50 to 65</div>
+          <div style="font-size:9px; color:#555; line-height:1.5;">Conditional. Proceed with specific mitigations.</div>
+        </div>
+        <div style="padding:10px 12px; border-top:3px solid #dc2626; background:#fef2f2; text-align:center;">
+          <div style="font-size:13px; font-weight:700; color:#dc2626; margin-bottom:3px;">Below 50</div>
+          <div style="font-size:9px; color:#555; line-height:1.5;">High Risk. Seek alternative site.</div>
+        </div>
+      </div>
+
+      <!-- Value prop -->
+      <div style="background:#0B1340; padding:14px 18px; display:flex; align-items:center; gap:14px; margin-bottom:20px;">
+        <div style="font-size:22px; flex-shrink:0;">💡</div>
+        <div style="font-size:12px; color:rgba(255,255,255,0.8); line-height:1.6;"><strong style="color:#C68B2F; font-size:13px;">A failed mini-grid costs $200,000.</strong> A STRATOS profile costs $5,000. That is 2.5% of the downside it prevents. Verified site intelligence is not an expense. It is insurance.</div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div style="background:#f8f7f4; border-top:1px solid #e8e3d8; padding:14px 32px; display:flex; justify-content:space-between; align-items:center;">
+      <div style="font-size:10px; font-weight:700; letter-spacing:3px; color:#0B1340;">STRAT<span style="color:#C68B2F;">O</span>S</div>
+      <div style="font-size:9px; color:#aaa; text-align:center; line-height:1.7;">Rural Energy Intelligence Platform &nbsp;·&nbsp; Nigeria<br>This profile was generated by the STRATOS AI-assisted processing pipeline</div>
+      <div style="font-size:9px; color:#aaa; text-align:right;">Profile ID: ${r.id}<br>${r.date}</div>
+    </div>
+
+  </div>`;
 }
+
+function triggerPDFDownload() {
+  const r = lastResult;
+  if (!r) return;
+  // Use print-to-pdf via a new window with the preview HTML
+  const previewHTML = document.getElementById('pdf-preview-doc').innerHTML;
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write(`<!DOCTYPE html><html><head>
+    <title>STRATOS - ${r.name} Viability Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      body { font-family:'Google Sans',sans-serif; background:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      @page { size: A4; margin: 0; }
+      @media print { body { margin:0; } }
+    </style>
+  </head><body>${previewHTML}</body></html>`);
+  win.document.close();
+  win.onload = () => { win.focus(); win.print(); };
+}
+
+/* ============================================================
+   MOBILE CSS INJECTION
+============================================================ */
+const mobileCSS = `
+@media (max-width: 768px) {
+  /* Landing nav */
+  .l-nav { padding: 0 20px; }
+  .l-nav-right .l-nav-link { display: none; }
+
+  /* Landing hero */
+  .l-hero { padding: 60px 24px 50px; min-height: auto; }
+  .l-logo { font-size: 52px; letter-spacing: 6px; }
+
+  /* Problem cards */
+  .l-problem-cards { grid-template-columns: 1fr; gap: 12px; }
+
+  /* Solution grid */
+  .l-solution-grid { grid-template-columns: 1fr; gap: 32px; }
+
+  /* Numbers grid */
+  .l-numbers { padding: 48px 24px; }
+  .l-numbers-grid { grid-template-columns: 1fr 1fr; }
+
+  /* Landing footer */
+  .l-footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px; }
+  .l-footer-right { text-align: center; }
+
+  /* Landing sections */
+  .l-section { padding: 48px 24px; }
+  .l-divider { margin: 0 24px; }
+
+  /* App shell */
+  .app-body { flex-direction: column; }
+
+  /* Sidebar becomes top bar on mobile */
+  .sidebar {
+    width: 100%; min-height: auto;
+    flex-direction: row; overflow-x: auto;
+    padding: 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .sidebar-section { display: flex; flex-direction: row; padding: 0; margin: 0; }
+  .sidebar-label { display: none; }
+  .sidebar-item { flex-direction: column; padding: 12px 14px; font-size: 11px; border-radius: 0; flex-shrink: 0; }
+  .sidebar-item .si-icon { font-size: 18px; }
+  .sidebar-bottom { display: none; }
+  .sidebar-section:last-child { border-left: 1px solid rgba(255,255,255,0.1); }
+
+  /* Views */
+  .view { padding: 20px 16px; }
+
+  /* Summary cards */
+  .summary-cards { grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Form grid */
+  .form-grid { grid-template-columns: 1fr; }
+
+  /* Results */
+  .results-wrap { grid-template-columns: 1fr !important; }
+
+  /* Top nav */
+  .topnav { padding: 0 16px; }
+  .nav-title { display: none; }
+  .nav-badge { display: none; }
+
+  /* Processing box */
+  .processing-box { padding: 28px 24px; margin: 16px; }
+
+  /* PDF modal */
+  #pdf-modal > div { width: 100vw; max-height: 100vh; border-radius: 0; }
+
+  /* Data table scroll */
+  .table-wrap { overflow-x: auto; }
+}
+
+@media (max-width: 480px) {
+  .l-logo { font-size: 40px; letter-spacing: 4px; }
+  .l-headline { font-size: 20px; }
+  .summary-cards { grid-template-columns: 1fr; }
+  .l-numbers-grid { grid-template-columns: 1fr; }
+  .l-num-big { font-size: 30px; }
+}`;
+
+const styleTag = document.createElement('style');
+styleTag.textContent = mobileCSS;
+document.head.appendChild(styleTag);
+
+/* ============================================================
+   LANDING SCROLL REVEALS
+============================================================ */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      const siblings = e.target.parentElement.querySelectorAll('[data-reveal]');
+      siblings.forEach((el, idx) => {
+        setTimeout(() => el.classList.add('visible'), idx * 120);
+      });
+      revealObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.2 });
+
+document.querySelectorAll('[data-reveal]').forEach(el => revealObserver.observe(el));
+
+const revealRightObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const siblings = e.target.parentElement.querySelectorAll('[data-reveal-right]');
+      siblings.forEach((el, idx) => setTimeout(() => el.classList.add('visible'), idx * 150));
+      revealRightObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.2 });
+
+document.querySelectorAll('[data-reveal-right]').forEach(el => revealRightObserver.observe(el));
+
+/* Number counter observer */
+let numbersTriggered = false;
+const numObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting && !numbersTriggered) {
+    numbersTriggered = true;
+    document.querySelectorAll('[data-reveal-num]').forEach((cell, i) => {
+      setTimeout(() => {
+        cell.classList.add('visible');
+        const counter = cell.querySelector('[data-counter]');
+        const target = parseInt(cell.dataset.target);
+        const prefix = cell.dataset.prefix || '';
+        const suffix = cell.dataset.suffix || '';
+        let cur = 0;
+        const dur = 1600, step = 16;
+        const inc = target / (dur / step);
+        const t = setInterval(() => {
+          cur = Math.min(cur + inc, target);
+          const rounded = Math.round(cur);
+          let display;
+          if (target >= 10000) display = prefix + (rounded >= 1000 ? Math.round(rounded/1000) + 'K' : rounded) + suffix;
+          else display = prefix + rounded + suffix;
+          counter.textContent = display;
+          if (cur >= target) clearInterval(t);
+        }, step);
+      }, i * 80);
+    });
+    numObserver.disconnect();
+  }
+}, { threshold: 0.2 });
+
+const numSection = document.getElementById('l-numbers');
+if (numSection) numObserver.observe(numSection);
 
 /* ============================================================
    INIT
